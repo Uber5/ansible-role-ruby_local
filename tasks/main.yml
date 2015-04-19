@@ -1,0 +1,26 @@
+---
+- name: ensure user exists
+  user: name={{ ruby_user }} shell=/bin/bash
+- name: ensure required packages are available
+  apt: pkg={{ item }} state=present
+  with_items:
+    - git-core
+    - curl
+    - zlib1g-dev
+    - build-essential
+    - libssl-dev
+    - libreadline-dev
+    - libyaml-dev
+    - libsqlite3-dev
+    - sqlite3
+    - libxml2-dev
+    - libxslt1-dev
+    - libcurl4-openssl-dev
+    - python-software-properties
+    - libffi-dev
+- name: provision build script
+  template: src=install-ruby.sh dest=/home/{{ ruby_user }}/install-ruby.sh mode=0750 owner={{ ruby_user }}
+- name: install ruby via build script
+  command: chdir=/home/{{ ruby_user }} /home/{{ ruby_user }}/install-ruby.sh creates=/home/{{ ruby_user }}/.ruby-installed-via-ansible
+  sudo: yes
+  sudo_user: "{{ ruby_user }}"
